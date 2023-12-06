@@ -13,9 +13,9 @@ class CompleteProfileScreen extends StatefulWidget {
 }
 
 class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
-  String selectedHospital = 'Al shifa eye hospital';
+  String selectedHospital = 'Al Shifa Hospital';
   List<String> hospitals = [
-    'Al shifa eye hospital'
+    'Al Shifa Hospital',
     'Aga Khan  Hospital',
     'Shaukat Khanum  Cancer Hospital',
     'Liaquat National Hospital ',

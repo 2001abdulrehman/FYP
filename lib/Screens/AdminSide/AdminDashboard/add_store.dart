@@ -172,7 +172,7 @@ class _AddStoreState extends State<AddStore> {
             ),
             InkWell(
               onTap: () {
-                functions.nextScreen(context, '');
+                functions.popScreen(context);
               },
               child: Container(
                 height: 40,

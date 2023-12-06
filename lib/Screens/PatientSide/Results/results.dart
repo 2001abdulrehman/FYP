@@ -122,7 +122,7 @@ class _ResultsState extends State<Results> {
                             TextSpan(
                               text: ' Not Found',
                               style: TextStyle(
-                                  color: Colors.yellow,
+                                  color: Colors.green,
                                   fontSize: 15,
                                   fontWeight: FontWeight.bold),
                             ),
