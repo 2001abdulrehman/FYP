@@ -31,7 +31,7 @@ class _PatientProfileState extends State<PatientProfile> {
               height: 10,
             ),
             const Text(
-              'Hi , Abdul Rehman',
+              'Hi , Abdul rehman',
               style:
                   TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
             ),

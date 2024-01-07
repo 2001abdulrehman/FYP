@@ -1,25 +1,30 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:optiscan/Screens/AuthScreens/doctor_signup.dart';
-import 'package:optiscan/Screens/AuthScreens/signup.dart';
-import 'package:optiscan/Screens/DoctorSide/DoctorNav/doctor_nav.dart';
-import 'package:optiscan/Screens/PatientSide/NavBar/navbar.dart';
 import 'package:optiscan/constant.dart';
 
 import '../../Functions/functions.dart';
+import '../DoctorSide/DoctorNav/doctor_nav.dart';
 
-class LoginDoctor extends StatefulWidget {
-  const LoginDoctor({super.key});
+class DoctorLogin extends StatefulWidget {
+  const DoctorLogin({super.key});
 
   @override
-  State<LoginDoctor> createState() => _LoginDoctorState();
+  State<DoctorLogin> createState() => _DoctorLoginState();
 }
 
-class _LoginDoctorState extends State<LoginDoctor> {
+class _DoctorLoginState extends State<DoctorLogin> {
   bool obsecure = false;
   Functions functions = Functions();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passController = TextEditingController();
+  bool isLoading = false;
+
+  Future<void> login() async {}
+
   @override
   Widget build(BuildContext context) {
     var height = MediaQuery.sizeOf(context).height;
@@ -67,71 +72,7 @@ class _LoginDoctorState extends State<LoginDoctor> {
                         const SizedBox(
                           height: 20,
                         ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(50),
-                                color: Colors.white,
-                                boxShadow: const [
-                                  BoxShadow(
-                                    color: Color(0xffDDDDDD),
-                                    blurRadius: 6.0,
-                                    spreadRadius: 2.0,
-                                    offset: Offset(0.0, 0.0),
-                                  )
-                                ],
-                              ),
-                              child: const Icon(
-                                FontAwesomeIcons.facebook,
-                                color: Colors.grey,
-                              ),
-                            ),
-                            const SizedBox(
-                              width: 15,
-                            ),
-                            Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(50),
-                                color: Colors.white,
-                                boxShadow: const [
-                                  BoxShadow(
-                                    color: Color(0xffDDDDDD),
-                                    blurRadius: 6.0,
-                                    spreadRadius: 2.0,
-                                    offset: Offset(0.0, 0.0),
-                                  )
-                                ],
-                              ),
-                              child: const Icon(
-                                FontAwesomeIcons.instagram,
-                                color: Colors.grey,
-                              ),
-                            ),
-                            const SizedBox(
-                              width: 15,
-                            ),
-                            Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(50),
-                                color: Colors.white,
-                                boxShadow: const [
-                                  BoxShadow(
-                                    color: Color(0xffDDDDDD),
-                                    blurRadius: 6.0,
-                                    spreadRadius: 2.0,
-                                    offset: Offset(0.0, 0.0),
-                                  )
-                                ],
-                              ),
-                              child: const Icon(
-                                FontAwesomeIcons.linkedin,
-                                color: Colors.grey,
-                              ),
-                            ),
-                          ],
-                        ),
+                        buildSocialIconsRow(),
                         const SizedBox(
                           height: 10,
                         ),
@@ -148,33 +89,11 @@ class _LoginDoctorState extends State<LoginDoctor> {
                           height: 20,
                         ),
                         const Text(
-                          'Enter Your Email',
+                          'Email',
                           style: TextStyle(
                               color: Colors.black, fontWeight: FontWeight.bold),
                         ),
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(10),
-                            boxShadow: const [
-                              BoxShadow(
-                                color: Color(0xffDDDDDD),
-                                blurRadius: 15.0,
-                                spreadRadius: 2.0,
-                                offset: Offset(0.0, 0.0),
-                              )
-                            ],
-                          ),
-                          child: TextFormField(
-                            controller: emailController,
-                            textInputAction: TextInputAction.next,
-                            keyboardType: TextInputType.emailAddress,
-                            decoration: const InputDecoration(
-                                contentPadding: EdgeInsets.symmetric(
-                                    vertical: 15, horizontal: 10),
-                                border: InputBorder.none),
-                          ),
-                        ),
+                        buildEmailTextField(),
                         const SizedBox(
                           height: 20,
                         ),
@@ -183,39 +102,7 @@ class _LoginDoctorState extends State<LoginDoctor> {
                           style: TextStyle(
                               color: Colors.black, fontWeight: FontWeight.bold),
                         ),
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(10),
-                            boxShadow: const [
-                              BoxShadow(
-                                color: Color(0xffDDDDDD),
-                                blurRadius: 15.0,
-                                spreadRadius: 2.0,
-                                offset: Offset(0.0, 0.0),
-                              )
-                            ],
-                          ),
-                          child: TextFormField(
-                            obscureText: obsecure,
-                            controller: passController,
-                            textInputAction: TextInputAction.next,
-                            keyboardType: TextInputType.emailAddress,
-                            decoration: InputDecoration(
-                                suffixIcon: IconButton(
-                                    onPressed: () {
-                                      setState(() {
-                                        obsecure = !obsecure;
-                                      });
-                                    },
-                                    icon: Icon(obsecure
-                                        ? CupertinoIcons.eye
-                                        : CupertinoIcons.eye_slash_fill)),
-                                contentPadding: const EdgeInsets.symmetric(
-                                    vertical: 15, horizontal: 10),
-                                border: InputBorder.none),
-                          ),
-                        ),
+                        buildPasswordTextField(),
                         const SizedBox(
                           height: 15,
                         ),
@@ -226,54 +113,11 @@ class _LoginDoctorState extends State<LoginDoctor> {
                         const SizedBox(
                           height: 10,
                         ),
-                        InkWell(
-                          onTap: () {
-                            functions.nextScreen(context, const DoctorNav());
-                            setState(() {
-                              guestEntry = false;
-                            });
-                          },
-                          child: Container(
-                            height: 50,
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(
-                                color: blueColor,
-                                borderRadius: BorderRadius.circular(30)),
-                            child: const Text(
-                              'Login',
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 20),
-                            ),
-                          ),
-                        ),
+                        buildLoginButton(context),
                         const SizedBox(
                           height: 15,
                         ),
-                        Text.rich(
-                          TextSpan(
-                            text: "Don't have an account? ",
-                            style: const TextStyle(
-                                color: Colors.black87,
-                                fontSize: 13,
-                                fontWeight: FontWeight.bold),
-                            children: [
-                              TextSpan(
-                                text: 'Sign Up',
-                                style: TextStyle(
-                                    color: blueColor,
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.bold),
-                                recognizer: TapGestureRecognizer()
-                                  ..onTap = () {
-                                    functions.nextScreen(
-                                        context, const SignupDoctor());
-                                  },
-                              ),
-                            ],
-                          ),
-                        ),
+                        buildSignUpText(context),
                       ],
                     ),
                   ),
@@ -282,6 +126,196 @@ class _LoginDoctorState extends State<LoginDoctor> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget buildSocialIconsRow() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        buildSocialIcon(FontAwesomeIcons.facebook),
+        const SizedBox(width: 15),
+        buildSocialIcon(FontAwesomeIcons.instagram),
+        const SizedBox(width: 15),
+        buildSocialIcon(FontAwesomeIcons.linkedin),
+      ],
+    );
+  }
+
+  Widget buildSocialIcon(IconData iconData) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(50),
+        color: Colors.white,
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0xffDDDDDD),
+            blurRadius: 6.0,
+            spreadRadius: 2.0,
+            offset: Offset(0.0, 0.0),
+          )
+        ],
+      ),
+      child: Icon(iconData, color: Colors.grey),
+    );
+  }
+
+  Widget buildEmailTextField() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0xffDDDDDD),
+            blurRadius: 15.0,
+            spreadRadius: 2.0,
+            offset: Offset(0.0, 0.0),
+          )
+        ],
+      ),
+      child: TextFormField(
+        controller: emailController,
+        textInputAction: TextInputAction.next,
+        keyboardType: TextInputType.emailAddress,
+        decoration: const InputDecoration(
+          contentPadding: EdgeInsets.symmetric(vertical: 15, horizontal: 10),
+          border: InputBorder.none,
+        ),
+      ),
+    );
+  }
+
+  Widget buildPasswordTextField() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0xffDDDDDD),
+            blurRadius: 15.0,
+            spreadRadius: 2.0,
+            offset: Offset(0.0, 0.0),
+          )
+        ],
+      ),
+      child: TextFormField(
+        obscureText: obsecure,
+        controller: passController,
+        textInputAction: TextInputAction.next,
+        keyboardType: TextInputType.emailAddress,
+        decoration: InputDecoration(
+          suffixIcon: IconButton(
+            onPressed: () {
+              setState(() {
+                obsecure = !obsecure;
+              });
+            },
+            icon: Icon(
+              obsecure ? CupertinoIcons.eye : CupertinoIcons.eye_slash_fill,
+            ),
+          ),
+          contentPadding:
+              const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
+          border: InputBorder.none,
+        ),
+      ),
+    );
+  }
+
+  Widget buildLoginButton(BuildContext context) {
+    return InkWell(
+      onTap: () async {
+        if (emailController.text.isEmpty || passController.text.isEmpty) {
+          functions.showSnackbar(context, 'Please fill in all the fields.');
+          return;
+        }
+
+        setState(() {
+          isLoading = true;
+        });
+        try {
+          final credential = await FirebaseAuth.instance
+              .signInWithEmailAndPassword(
+                  email: emailController.text, password: passController.text);
+          functions.nextScreen(context, const DoctorNav());
+          setState(() {
+            guestEntry = false;
+          });
+        } on FirebaseAuthException catch (e) {
+          setState(() {
+            isLoading = false;
+          });
+          if (e.code == 'user-not-found') {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                backgroundColor: blueColor,
+                duration: const Duration(seconds: 3),
+                content: const Text(
+                  'Wrong email',
+                ),
+              ),
+            );
+            print('no user found');
+          } else if (e.code == 'wrong-password') {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                backgroundColor: blueColor,
+                duration: const Duration(seconds: 3),
+                content: const Text(
+                  'Wrong password',
+                ),
+              ),
+            );
+            print('wrong pass');
+          }
+        }
+      },
+      child: Container(
+        height: 50,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+            color: blueColor, borderRadius: BorderRadius.circular(30)),
+        child: isLoading
+            ? const CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+              )
+            : const Text(
+                'Login',
+                style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20),
+              ),
+      ),
+    );
+  }
+
+  Widget buildSignUpText(BuildContext context) {
+    return Text.rich(
+      TextSpan(
+        text: "Don't have an account? ",
+        style: const TextStyle(
+          color: Colors.black87,
+          fontSize: 13,
+          fontWeight: FontWeight.bold,
+        ),
+        children: [
+          TextSpan(
+            text: 'Sign Up',
+            style: TextStyle(
+              color: blueColor,
+              fontSize: 15,
+              fontWeight: FontWeight.bold,
+            ),
+            recognizer: TapGestureRecognizer()
+              ..onTap = () {
+                functions.nextScreen(context, const SignupDoctor());
+              },
+          ),
+        ],
       ),
     );
   }

@@ -107,7 +107,7 @@ class _AddStoreState extends State<AddStore> {
                 textInputAction: TextInputAction.next,
                 keyboardType: TextInputType.emailAddress,
                 decoration: const InputDecoration(
-                    hintText: 'Enter Mobile Number',
+                    hintText: 'Enter Store Number',
                     contentPadding:
                         EdgeInsets.symmetric(vertical: 15, horizontal: 10),
                     border: InputBorder.none),
@@ -172,7 +172,7 @@ class _AddStoreState extends State<AddStore> {
             ),
             InkWell(
               onTap: () {
-                functions.popScreen(context);
+                functions.nextScreen(context, '');
               },
               child: Container(
                 height: 40,

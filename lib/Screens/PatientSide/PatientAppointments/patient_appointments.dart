@@ -68,7 +68,7 @@ class _PatientAppointmentScreenState extends State<PatientAppointmentScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              Text('Doctor Name: Doctor Zain'),
+                              Text('Doctor Name:Zain'),
                               Text(
                                 'Appointment Date: 11/5/2024',
                                 style:

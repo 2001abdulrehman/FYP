@@ -36,7 +36,7 @@ class _PatientHomeState extends State<PatientHome> {
           ),
         ),
         title: const Text(
-          'HI Abdul Rehman',
+          'HI KASHIF',
           style: TextStyle(
               color: Colors.blue, fontWeight: FontWeight.bold, fontSize: 15),
         ),

@@ -71,7 +71,7 @@ class _SplashOptionsState extends State<SplashOptions> {
               onTap: () {
                 functions.nextScreen(
                   context,
-                  const LoginDoctor(),
+                  const DoctorLogin(),
                 );
               },
               child: Container(

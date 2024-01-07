@@ -72,9 +72,9 @@ class _ResultsState extends State<Results> {
                           ),
                           children: [
                             TextSpan(
-                              text: ' Abdul Rehman',
+                              text: ' Kashif',
                               style: TextStyle(
-                                  color: Colors.white,
+                                  color: Colors.green,
                                   fontSize: 20,
                                   fontWeight: FontWeight.bold),
                             ),
@@ -92,7 +92,7 @@ class _ResultsState extends State<Results> {
                             TextSpan(
                               text: ' 03456798576',
                               style: TextStyle(
-                                  color: Colors.white,
+                                  color: Colors.green,
                                   fontSize: 15,
                                   fontWeight: FontWeight.bold),
                             ),

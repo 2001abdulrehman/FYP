@@ -84,7 +84,7 @@ class _RegisterDoctorsState extends State<RegisterDoctors> {
                             child: InkWell(
                               onTap: () {
                                 functions.showSnackbar(
-                                    context, 'Dr.Raja Zain Deleted');
+                                    context, 'Dr.Zain Deleted');
                               },
                               child: const Icon(
                                 Icons.delete,
@@ -96,7 +96,7 @@ class _RegisterDoctorsState extends State<RegisterDoctors> {
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
                               const CircleAvatar(
-                                backgroundImage: AssetImage('assets/zain.png'),
+                                backgroundImage: AssetImage('assets/z.jpeg'),
                                 radius: 40,
                               ),
                               SizedBox(

@@ -77,7 +77,7 @@ class Functions {
   }
 
   launchWhatsapp() async {
-    const phone = '+92 3102548084';
+    const phone = '+92 3231559163';
     const url = 'https://wa.me/$phone';
     await launch(url);
   }

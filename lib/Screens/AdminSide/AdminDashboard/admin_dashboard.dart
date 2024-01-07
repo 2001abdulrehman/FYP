@@ -299,7 +299,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                       ),
                     ),
                     child: Text(
-                      'Verified\nDoctors',
+                      'Verified\nDoctos',
                       style: TextStyle(
                           color: blueColor,
                           fontSize: 15,

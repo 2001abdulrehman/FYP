@@ -213,7 +213,7 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
                                               style: TextStyle(fontSize: 15),
                                             ),
                                             Text(
-                                              'Dr. Zain is a remarkable doctor',
+                                              'Dr. Kashif is a remarkable doctor',
                                               style: TextStyle(fontSize: 13),
                                             ),
                                             Text(

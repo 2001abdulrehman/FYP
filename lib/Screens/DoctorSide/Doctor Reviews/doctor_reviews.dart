@@ -66,7 +66,7 @@ class _DoctorReviewsState extends State<DoctorReviews> {
                                           crossAxisAlignment:
                                               CrossAxisAlignment.stretch,
                                           children: [
-                                            Text('Kashif Ali',
+                                            Text('Kashif',
                                                 style: TextStyle(fontSize: 10)),
                                             Text('Pakistan',
                                                 style: TextStyle(fontSize: 10)),

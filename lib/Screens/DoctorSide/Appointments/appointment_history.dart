@@ -97,7 +97,7 @@ class _AppointmentHistoryState extends State<AppointmentHistory> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      'Patient Name : Raja Zain',
+                                      'Patient Name : Kashif Ali',
                                       style: TextStyle(
                                           color: Colors.grey,
                                           fontWeight: FontWeight.bold),
@@ -129,7 +129,7 @@ class _AppointmentHistoryState extends State<AppointmentHistory> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Patient Name : MR. Raja Zain',
+                                  'Patient Name : MR.Kashif ALi',
                                   style: TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.bold),

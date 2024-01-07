@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_tflite/flutter_tflite.dart';
 import 'package:optiscan/Screens/PatientSide/Results/results.dart';
 import 'package:optiscan/constant.dart';
 
@@ -13,6 +14,51 @@ class DisplayImage extends StatefulWidget {
 }
 
 class _DisplayImageState extends State<DisplayImage> {
+  String resultMessage = 'No disease detected'; // Default message
+
+  // void loadModel() async {
+  //   await Tflite.loadModel(
+  //     model: 'assets/model/model1.tflite',
+  //   );
+  // }
+
+  // Future<List> classifyImage(String imagePath) async {
+  //   var result = await Tflite.runModelOnImage(
+  //     path: imagePath,
+  //     imageMean: 0.0,
+  //     imageStd: 255.0,
+  //     numResults: 2,
+  //     threshold: 0.2,
+  //     asynch: true,
+  //   );
+
+  //   if (result == null) {
+  //     // Handle the null case
+  //     return [];
+  //   }
+
+  //   return result;
+  // }
+
+  // Future<void> classifyImageAndUpdateUI(String imagePath) async {
+  //   var result = await classifyImage(imagePath);
+
+  //   // Assuming the model returns a list of results, and you are interested in the first one
+  //   String detectedDisease =
+  //       result.isNotEmpty ? result[0]['label'] : 'No disease detected';
+
+  //   setState(() {
+  //     resultMessage = detectedDisease;
+  //   });
+  //   print(detectedDisease);
+  // }
+
+  @override
+  void initState() {
+    //loadModel();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -50,7 +96,9 @@ class _DisplayImageState extends State<DisplayImage> {
           ),
           InkWell(
             onTap: () {
-              functions.nextScreen(context, Results());
+              //functions.nextScreen(context, Results());
+              //classifyImage(widget.imagePath);
+              //classifyImageAndUpdateUI(widget.imagePath);
             },
             child: Container(
               height: 50,

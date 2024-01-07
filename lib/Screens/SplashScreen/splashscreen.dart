@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:optiscan/Functions/functions.dart';
 import 'package:optiscan/Screens/SplashScreen/splash_options.dart';
+import 'package:optiscan/Services/auth_service.dart';
 import 'package:optiscan/constant.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -12,6 +13,7 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> {
   Functions functions = Functions();
+  AuthService authService = AuthService();
   @override
   Widget build(BuildContext context) {
     return Scaffold(

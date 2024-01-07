@@ -123,7 +123,7 @@ class _NonVerifiedDoctorsState extends State<NonVerifiedDoctors> {
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
                               const CircleAvatar(
-                                backgroundImage: AssetImage('assets/zain.png'),
+                                backgroundImage: AssetImage('assets/z.jpeg'),
                                 radius: 40,
                               ),
                               SizedBox(

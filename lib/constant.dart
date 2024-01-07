@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:optiscan/Services/auth_service.dart';
 
 import 'Functions/functions.dart';
 
 Color blueColor = Color(0xff167FFF);
 Color scaffoldColor = Color(0xffF8F8F8);
 Functions functions = Functions();
-
+AuthService authService = AuthService();
 TextEditingController emailController = TextEditingController();
 TextEditingController passController = TextEditingController();
 TextEditingController newpassController = TextEditingController();

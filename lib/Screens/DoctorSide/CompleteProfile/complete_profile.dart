@@ -1,28 +1,27 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-
 import 'package:image_picker/image_picker.dart';
 import 'package:optiscan/constant.dart';
 
 class CompleteProfileScreen extends StatefulWidget {
-  const CompleteProfileScreen({super.key});
-
+  CompleteProfileScreen({super.key, required this.name});
+  String name;
   @override
   State<CompleteProfileScreen> createState() => _CompleteProfileScreenState();
 }
 
 class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
-  String selectedHospital = 'Al Shifa Hospital';
+  String selectedHospital = 'Al shifa hospital';
   List<String> hospitals = [
-    'Al Shifa Hospital',
-    'Aga Khan  Hospital',
-    'Shaukat Khanum  Cancer Hospital',
-    'Liaquat National Hospital ',
+    'Al shifa hospital',
+    'Aga Khan Hospital',
+    'Shaukat Khanum Cancer Hospital',
+    'Liaquat National Hospital',
     'Indus Hospital, Karachi',
     'Aga Khan Hospital, Karachi',
     'CMH Rawalpindi',
-    'Jinnah Postgraduate Medical Centre ',
+    'Jinnah Postgraduate Medical Centre',
     'Punjab Institute of Cardiology',
     'Civil Hospital, Karachi',
   ];
@@ -30,9 +29,10 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
   File? _dpImage;
   var imageSelected = false;
   dynamic dpUrl = "";
+
   Future pickImage() async {
-    final pickedFile = await ImagePicker.platform
-        .getImageFromSource(source: ImageSource.gallery);
+    final pickedFile =
+        await ImagePicker.platform.getImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       setState(() {
         _dpImage = File(pickedFile.path);
@@ -42,243 +42,256 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
     }
   }
 
+  Widget buildProfileImage() {
+    return GestureDetector(
+      onTap: pickImage,
+      child: Center(
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 20),
+          height: 125,
+          width: MediaQuery.of(context).size.width * 0.3,
+          decoration: BoxDecoration(
+            border: Border.all(width: 1.3),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: (!imageSelected)
+              ? buildImagePlaceholder()
+              : ClipRRect(
+                  borderRadius: BorderRadius.circular(16),
+                  child: Image.file(
+                    dpUrl,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+        ),
+      ),
+    );
+  }
+
+  Widget buildImagePlaceholder() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      children: [
+        SizedBox(
+          height: MediaQuery.of(context).size.width * 0.16,
+          width: MediaQuery.of(context).size.width * 0.16,
+          child: Image.asset(
+            'assets/upload.png',
+          ),
+        ),
+        const Text(
+          'Choose Profile Image',
+          textAlign: TextAlign.center,
+        )
+      ],
+    );
+  }
+
+  Widget buildMultilineTextField(
+      TextEditingController controller, String hintText) {
+    return Container(
+      height: 150,
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.black),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0xffDDDDDD),
+            blurRadius: 15.0,
+            spreadRadius: 2.0,
+            offset: Offset(0.0, 0.0),
+          ),
+        ],
+      ),
+      child: TextFormField(
+        maxLines: 3,
+        controller: controller,
+        textInputAction: TextInputAction.newline,
+        keyboardType: TextInputType.multiline,
+        decoration: InputDecoration(
+          hintText: hintText,
+          contentPadding:
+              const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
+          border: InputBorder.none,
+        ),
+      ),
+    );
+  }
+
+  Widget buildTextField(TextEditingController controller, String hintText) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0xffDDDDDD),
+            blurRadius: 15.0,
+            spreadRadius: 2.0,
+            offset: Offset(0.0, 0.0),
+          ),
+        ],
+      ),
+      child: TextFormField(
+        controller: controller,
+        enabled: true,
+        decoration: InputDecoration(
+          hintText: hintText,
+          contentPadding:
+              const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
+          border: InputBorder.none,
+        ),
+      ),
+    );
+  }
+
+  Widget buildDropdownFormField() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0xffDDDDDD),
+            blurRadius: 15.0,
+            spreadRadius: 2.0,
+            offset: Offset(0.0, 0.0),
+          ),
+        ],
+      ),
+      child: DropdownButtonFormField<String>(
+        decoration: const InputDecoration(
+          hintText: 'Your Hospital',
+          contentPadding:
+              const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
+          border: InputBorder.none,
+        ),
+        value: selectedHospital,
+        onChanged: (String? newValue) {
+          setState(() {
+            selectedHospital = newValue!;
+          });
+        },
+        items: hospitals.map<DropdownMenuItem<String>>((String value) {
+          return DropdownMenuItem<String>(
+            value: value,
+            child: Text(value),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget buildCompletedButton(BuildContext context) {
+    return InkWell(
+      onTap: () async {
+        if (_dpImage == null ||
+            doctorAboutController.text.isEmpty ||
+            doctorSpecialtyController.text.isEmpty ||
+            doctorAddreessController.text.isEmpty ||
+            doctorClinicController.text.isEmpty) {
+          functions.showSnackbar(context, 'Please fill in all the fields.');
+        } else {
+          try {
+            // Show circular indicator
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return Center(
+                  child: CircularProgressIndicator(),
+                );
+              },
+              barrierDismissible: false,
+            );
+
+            // Call the function to update profile
+            await authService.completeUserProfile(
+              profileImage: _dpImage!,
+              about: doctorAboutController.text.trim(),
+              specialty: doctorSpecialtyController.text.trim(),
+              selectedHospital: selectedHospital,
+              address: doctorAddreessController.text.trim(),
+              clinicAddress: doctorClinicController.text.trim(),
+              context: context,
+              docName: widget.name,
+            );
+
+            // Close the circular indicator dialog
+            Navigator.pop(context);
+
+            // Show completion message
+            functions.showSnackbar(context,
+                'Profile Completed! Your Profile is under approval kindly wait');
+
+            // Navigate back to the previous screens
+            functions.popScreen(context);
+            functions.popScreen(context);
+          } catch (error) {
+            // Handle errors, e.g., show an error message
+            functions.showSnackbar(context, 'Error: $error');
+
+            // Close the circular indicator dialog
+            Navigator.pop(context);
+          }
+        }
+      },
+      child: Container(
+        alignment: Alignment.center,
+        height: 50,
+        decoration: BoxDecoration(
+          color: Colors.blue,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: const Text(
+          'Completed',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    var height = MediaQuery.of(context).size.height;
-    var width = MediaQuery.of(context).size.width;
-
-    return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        centerTitle: true,
-        title: const Text(
-          "Complete Your Profile",
-          style: TextStyle(color: Colors.white),
+    return WillPopScope(
+      onWillPop: () async {
+        functions.showSnackbar(context, 'Please complete your profile first.');
+        return false;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          centerTitle: true,
+          title: const Text(
+            "Complete Your Profile",
+            style: TextStyle(color: Colors.white),
+          ),
+          elevation: 0,
+          iconTheme: const IconThemeData(color: Colors.white),
+          backgroundColor: blueColor,
         ),
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
-        backgroundColor: blueColor,
-      ),
-      body: Center(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 2.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                GestureDetector(
-                  onTap: () {
-                    pickImage();
-                  },
-                  child: Center(
-                    child: Container(
-                      margin: const EdgeInsets.only(
-                        bottom: 20,
-                      ),
-                      height: 125,
-                      width: width * 0.3,
-                      decoration: BoxDecoration(
-                          border: Border.all(width: 1.3),
-                          borderRadius: BorderRadius.circular(16)),
-                      child: (!imageSelected)
-                          ? Column(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              children: [
-                                SizedBox(
-                                  height: width * 0.16,
-                                  width: width * 0.16,
-                                  child: Image.asset(
-                                    'assets/upload.png',
-                                  ),
-                                ),
-                                const Text(
-                                  'Choose Profile Image',
-                                  textAlign: TextAlign.center,
-                                )
-                              ],
-                            )
-                          : ClipRRect(
-                              borderRadius: BorderRadius.circular(16),
-                              child: Image.file(
-                                dpUrl,
-                                fit: BoxFit.cover,
-                              )),
-                    ),
-                  ),
-                ),
-                Container(
-                  height: 150,
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.black),
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Color(0xffDDDDDD),
-                        blurRadius: 15.0,
-                        spreadRadius: 2.0,
-                        offset: Offset(0.0, 0.0),
-                      )
-                    ],
-                  ),
-                  child: TextFormField(
-                    maxLines: 3,
-                    controller: doctorAboutController,
-                    textInputAction: TextInputAction.newline,
-                    keyboardType: TextInputType.multiline,
-                    decoration: const InputDecoration(
-                        hintText: 'Please write your about here ...',
-                        contentPadding:
-                            EdgeInsets.symmetric(vertical: 15, horizontal: 10),
-                        border: InputBorder.none),
-                  ),
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Color(0xffDDDDDD),
-                        blurRadius: 15.0,
-                        spreadRadius: 2.0,
-                        offset: Offset(0.0, 0.0),
-                      )
-                    ],
-                  ),
-                  child: TextFormField(
-                    controller: doctorSpecialtyController,
-                    enabled: true,
-                    decoration: const InputDecoration(
-                      hintText: 'Your Specialty',
-                      contentPadding:
-                          EdgeInsets.symmetric(vertical: 15, horizontal: 10),
-                      border: InputBorder.none,
-                    ),
-                  ),
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Color(0xffDDDDDD),
-                        blurRadius: 15.0,
-                        spreadRadius: 2.0,
-                        offset: Offset(0.0, 0.0),
-                      )
-                    ],
-                  ),
-                  child: DropdownButtonFormField<String>(
-                    decoration: InputDecoration(
-                      hintText: 'Your Hospital',
-                      contentPadding:
-                          EdgeInsets.symmetric(vertical: 15, horizontal: 10),
-                      border: InputBorder.none,
-                    ),
-                    value: selectedHospital,
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        selectedHospital = newValue!;
-                      });
-                    },
-                    items:
-                        hospitals.map<DropdownMenuItem<String>>((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: Text(value),
-                      );
-                    }).toList(),
-                  ),
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Color(0xffDDDDDD),
-                        blurRadius: 15.0,
-                        spreadRadius: 2.0,
-                        offset: Offset(0.0, 0.0),
-                      )
-                    ],
-                  ),
-                  child: TextFormField(
-                    controller: doctorAddreessController,
-                    enabled: true,
-                    decoration: const InputDecoration(
-                      hintText: 'Your Address',
-                      contentPadding:
-                          EdgeInsets.symmetric(vertical: 15, horizontal: 10),
-                      border: InputBorder.none,
-                    ),
-                  ),
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Color(0xffDDDDDD),
-                        blurRadius: 15.0,
-                        spreadRadius: 2.0,
-                        offset: Offset(0.0, 0.0),
-                      )
-                    ],
-                  ),
-                  child: TextFormField(
-                    controller: doctorClinicController,
-                    enabled: true,
-                    decoration: const InputDecoration(
-                      hintText: 'Clinic Address',
-                      contentPadding:
-                          EdgeInsets.symmetric(vertical: 15, horizontal: 10),
-                      border: InputBorder.none,
-                    ),
-                  ),
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                InkWell(
-                  onTap: () {
-                    functions.showSnackbar(
-                        context, 'Your Profile has been completed.');
-                    functions.popScreen(context);
-                    functions.popScreen(context);
-                  },
-                  child: Container(
-                    alignment: Alignment.center,
-                    height: 50,
-                    decoration: BoxDecoration(
-                        color: Colors.blue,
-                        borderRadius: BorderRadius.circular(10)),
-                    child: const Text(
-                      'Completed',
-                      style: TextStyle(
-                          color: Colors.white, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ),
-              ],
+        body: Center(
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 2.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  buildProfileImage(),
+                  buildMultilineTextField(doctorAboutController,
+                      'Please write your about here ...'),
+                  const SizedBox(height: 10),
+                  buildTextField(doctorSpecialtyController, 'Your Specialty'),
+                  const SizedBox(height: 10),
+                  buildDropdownFormField(),
+                  const SizedBox(height: 10),
+                  buildTextField(doctorAddreessController, 'Your Address'),
+                  const SizedBox(height: 10),
+                  buildTextField(doctorClinicController, 'Clinic Address'),
+                  const SizedBox(height: 10),
+                  buildCompletedButton(context),
+                ],
+              ),
             ),
           ),
         ),

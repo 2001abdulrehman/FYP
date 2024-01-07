@@ -66,7 +66,7 @@ class _FeedBackScreenState extends State<FeedBackScreen> {
                                           crossAxisAlignment:
                                               CrossAxisAlignment.stretch,
                                           children: [
-                                            Text('Abdul Rehman',
+                                            Text('Kashif',
                                                 style: TextStyle(fontSize: 15)),
                                             Text(
                                               'Dr. Zain is a remarkable doctor',
