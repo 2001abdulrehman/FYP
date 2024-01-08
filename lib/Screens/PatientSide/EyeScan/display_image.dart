@@ -96,7 +96,7 @@ class _DisplayImageState extends State<DisplayImage> {
           ),
           InkWell(
             onTap: () {
-              //functions.nextScreen(context, Results());
+              functions.nextScreen(context, Results());
               //classifyImage(widget.imagePath);
               //classifyImageAndUpdateUI(widget.imagePath);
             },
