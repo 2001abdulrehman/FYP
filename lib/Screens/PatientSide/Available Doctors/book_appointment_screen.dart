@@ -25,7 +25,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
           "Book Appointment",
           style: TextStyle(color: Colors.white),
         ),
-        elevation: 0,
+        elevation: 2,
         iconTheme: const IconThemeData(color: Colors.white),
         backgroundColor: blueColor,
       ),

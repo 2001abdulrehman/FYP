@@ -172,7 +172,9 @@ class _AddStoreState extends State<AddStore> {
             ),
             InkWell(
               onTap: () {
-                functions.nextScreen(context, '');
+                //functions.nextScreen(context, '');
+                functions.showSnackbar(context,
+                    'Store added successfully');
               },
               child: Container(
                 height: 40,
