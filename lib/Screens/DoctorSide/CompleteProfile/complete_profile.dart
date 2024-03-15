@@ -12,20 +12,6 @@ class CompleteProfileScreen extends StatefulWidget {
 }
 
 class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
-  String selectedHospital = 'Al shifa hospital';
-  List<String> hospitals = [
-    'Al shifa hospital',
-    'Aga Khan Hospital',
-    'Shaukat Khanum Cancer Hospital',
-    'Liaquat National Hospital',
-    'Indus Hospital, Karachi',
-    'Aga Khan Hospital, Karachi',
-    'CMH Rawalpindi',
-    'Jinnah Postgraduate Medical Centre',
-    'Punjab Institute of Cardiology',
-    'Civil Hospital, Karachi',
-  ];
-
   File? _dpImage;
   var imageSelected = false;
   dynamic dpUrl = "";
@@ -90,7 +76,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
   Widget buildMultilineTextField(
       TextEditingController controller, String hintText) {
     return Container(
-      height: 150,
+      height: 100,
       decoration: BoxDecoration(
         border: Border.all(color: Colors.black),
         color: Colors.white,
@@ -119,7 +105,8 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
     );
   }
 
-  Widget buildTextField(TextEditingController controller, String hintText) {
+  Widget buildTextField(TextEditingController controller, String hintText,
+      TextInputType inputTime) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -134,6 +121,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
         ],
       ),
       child: TextFormField(
+        keyboardType: inputTime,
         controller: controller,
         enabled: true,
         decoration: InputDecoration(
@@ -146,51 +134,15 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
     );
   }
 
-  Widget buildDropdownFormField() {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(10),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0xffDDDDDD),
-            blurRadius: 15.0,
-            spreadRadius: 2.0,
-            offset: Offset(0.0, 0.0),
-          ),
-        ],
-      ),
-      child: DropdownButtonFormField<String>(
-        decoration: const InputDecoration(
-          hintText: 'Your Hospital',
-          contentPadding:
-              const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
-          border: InputBorder.none,
-        ),
-        value: selectedHospital,
-        onChanged: (String? newValue) {
-          setState(() {
-            selectedHospital = newValue!;
-          });
-        },
-        items: hospitals.map<DropdownMenuItem<String>>((String value) {
-          return DropdownMenuItem<String>(
-            value: value,
-            child: Text(value),
-          );
-        }).toList(),
-      ),
-    );
-  }
-
   Widget buildCompletedButton(BuildContext context) {
     return InkWell(
       onTap: () async {
         if (_dpImage == null ||
             doctorAboutController.text.isEmpty ||
             doctorSpecialtyController.text.isEmpty ||
-            doctorAddreessController.text.isEmpty ||
-            doctorClinicController.text.isEmpty) {
+            doctorServingHospitalController.text.isEmpty ||
+            doctorPhoneNumberController.text.isEmpty ||
+            doctorPmcController.text.isEmpty) {
           functions.showSnackbar(context, 'Please fill in all the fields.');
         } else {
           try {
@@ -198,7 +150,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
             showDialog(
               context: context,
               builder: (BuildContext context) {
-                return Center(
+                return const Center(
                   child: CircularProgressIndicator(),
                 );
               },
@@ -210,23 +162,19 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
               profileImage: _dpImage!,
               about: doctorAboutController.text.trim(),
               specialty: doctorSpecialtyController.text.trim(),
-              selectedHospital: selectedHospital,
-              address: doctorAddreessController.text.trim(),
+              servingHospitalAddress:
+                  doctorServingHospitalController.text.trim(),
               clinicAddress: doctorClinicController.text.trim(),
               context: context,
               docName: widget.name,
+              pmcNumber: doctorPmcController.text.trim(),
+              doctorPhoneNumber: doctorPhoneNumberController.text,
             );
 
             // Close the circular indicator dialog
             Navigator.pop(context);
 
             // Show completion message
-            functions.showSnackbar(context,
-                'Profile Completed! Your Profile is under approval kindly wait');
-
-            // Navigate back to the previous screens
-            functions.popScreen(context);
-            functions.popScreen(context);
           } catch (error) {
             // Handle errors, e.g., show an error message
             functions.showSnackbar(context, 'Error: $error');
@@ -281,13 +229,20 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                   buildMultilineTextField(doctorAboutController,
                       'Please write your about here ...'),
                   const SizedBox(height: 10),
-                  buildTextField(doctorSpecialtyController, 'Your Specialty'),
+                  buildTextField(doctorSpecialtyController, 'Your Specialty',
+                      TextInputType.emailAddress),
                   const SizedBox(height: 10),
-                  buildDropdownFormField(),
+                  buildTextField(doctorPmcController, 'PMC Number',
+                      TextInputType.emailAddress),
                   const SizedBox(height: 10),
-                  buildTextField(doctorAddreessController, 'Your Address'),
+                  buildTextField(doctorPhoneNumberController, 'Phone Number',
+                      TextInputType.number),
                   const SizedBox(height: 10),
-                  buildTextField(doctorClinicController, 'Clinic Address'),
+                  buildTextField(doctorServingHospitalController,
+                      'Serving Hospital', TextInputType.emailAddress),
+                  const SizedBox(height: 10),
+                  buildTextField(doctorClinicController,
+                      'Clinic Address (optional)', TextInputType.emailAddress),
                   const SizedBox(height: 10),
                   buildCompletedButton(context),
                 ],

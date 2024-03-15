@@ -307,10 +307,12 @@ class _SignupDoctorState extends State<SignupDoctor> {
                   duration: Duration(seconds: 2),
                 ),
               );
-              print('User registered: ${user.email}');
+
               functions.nextScreen(
                 context,
-                 CompleteProfileScreen(name: nameController.text.trim(),),
+                CompleteProfileScreen(
+                  name: nameController.text.trim(),
+                ),
               );
             } else {
               // User registration failed

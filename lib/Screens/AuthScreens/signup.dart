@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:optiscan/Screens/PatientSide/CompleteProfile/profile_complete.dart';
 import 'package:optiscan/Services/auth_service.dart';
 import 'package:optiscan/constant.dart';
 
@@ -302,6 +303,11 @@ class _SignupPatientState extends State<SignupPatient> {
             });
 
             if (user != null) {
+              functions.nextScreen(
+                  context,
+                  PatientCompleteProfileScreen(
+                    name: nameController.text,
+                  ));
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text('Successfully registered as ${user.email}'),

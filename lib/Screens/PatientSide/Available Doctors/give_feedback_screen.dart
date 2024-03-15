@@ -1,18 +1,67 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:optiscan/constant.dart';
 
 class GiveFeedBackScreen extends StatefulWidget {
-  const GiveFeedBackScreen({super.key});
+  final String docId;
+  GiveFeedBackScreen({Key? key, required this.docId});
 
   @override
   State<GiveFeedBackScreen> createState() => _GiveFeedBackScreenState();
 }
 
 class _GiveFeedBackScreenState extends State<GiveFeedBackScreen> {
+  TextEditingController nameController = TextEditingController();
+  TextEditingController feedBackController = TextEditingController();
+  bool submitting = false;
+
+  void submitFeedback() async {
+    if (feedBackController.text.isEmpty) {
+      functions.showSnackbar(context, 'Write your feed back first');
+    } else {
+      try {
+        setState(() {
+          submitting = true;
+        });
+        final user = FirebaseAuth.instance.currentUser;
+        if (user != null) {
+          DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
+              .collection('patients')
+              .doc(user.uid)
+              .get();
+          String userName = userSnapshot['name'];
+          String userProfileImage = userSnapshot['profileImage'];
+
+          // Storing feedback in Firestore
+          await FirebaseFirestore.instance.collection('reviews').add({
+            'reviewText': feedBackController.text,
+            'reviewDate': Timestamp.now(),
+            'name': userName,
+            'reviewImage':
+                userProfileImage, // Add logic to store image if required
+            'docId': widget.docId,
+          });
+
+          // Show snackbar
+          functions.showSnackbar(context, 'Your Feedback has been recorded');
+          setState(() {
+            submitting = false;
+          });
+        }
+      } catch (e) {
+        setState(() {
+          submitting = false;
+        });
+        functions.showSnackbar(context, '$EdgeInsetsGeometry');
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    var height = MediaQuery.sizeOf(context).height;
-    var width = MediaQuery.sizeOf(context).width;
+    var height = MediaQuery.of(context).size.height;
+
     return Scaffold(
       backgroundColor: blueColor,
       appBar: AppBar(
@@ -52,7 +101,7 @@ class _GiveFeedBackScreenState extends State<GiveFeedBackScreen> {
                         )
                       ],
                     ),
-                    height: height * 0.6,
+                    height: height * 0.5,
                     width: double.infinity,
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -65,33 +114,6 @@ class _GiveFeedBackScreenState extends State<GiveFeedBackScreen> {
                                 color: Colors.blue,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 20),
-                          ),
-                          const SizedBox(
-                            height: 20,
-                          ),
-                          Container(
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(10),
-                              boxShadow: const [
-                                BoxShadow(
-                                  color: Color(0xffDDDDDD),
-                                  blurRadius: 15.0,
-                                  spreadRadius: 2.0,
-                                  offset: Offset(0.0, 0.0),
-                                )
-                              ],
-                            ),
-                            child: TextFormField(
-                              controller: nameController,
-                              textInputAction: TextInputAction.next,
-                              keyboardType: TextInputType.emailAddress,
-                              decoration: InputDecoration(
-                                  hintText: 'Enter Your Name',
-                                  contentPadding: const EdgeInsets.symmetric(
-                                      vertical: 15, horizontal: 10),
-                                  border: InputBorder.none),
-                            ),
                           ),
                           const SizedBox(
                             height: 10,
@@ -116,9 +138,9 @@ class _GiveFeedBackScreenState extends State<GiveFeedBackScreen> {
                               controller: feedBackController,
                               textInputAction: TextInputAction.newline,
                               keyboardType: TextInputType.multiline,
-                              decoration: InputDecoration(
+                              decoration: const InputDecoration(
                                   hintText: 'Give Your Feedback Here ...',
-                                  contentPadding: const EdgeInsets.symmetric(
+                                  contentPadding: EdgeInsets.symmetric(
                                       vertical: 15, horizontal: 10),
                                   border: InputBorder.none),
                             ),
@@ -127,23 +149,20 @@ class _GiveFeedBackScreenState extends State<GiveFeedBackScreen> {
                             height: 10,
                           ),
                           InkWell(
-                            onTap: () {
-                              functions.showSnackbar(
-                                  context, 'Your Feedback has  recorded');
-                            },
+                            onTap: submitFeedback,
                             child: Container(
                               alignment: Alignment.center,
-                              child: Text(
-                                'Submit',
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold),
-                              ),
                               height: 40,
                               width: 150,
                               decoration: BoxDecoration(
                                   color: blueColor,
                                   borderRadius: BorderRadius.circular(10)),
+                              child: Text(
+                                submitting ? 'Submitting' : 'Submit',
+                                style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold),
+                              ),
                             ),
                           )
                         ],

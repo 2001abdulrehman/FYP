@@ -1,16 +1,49 @@
 import 'package:flutter/material.dart';
-import 'package:optiscan/Screens/DoctorSide/DoctorSlots/create_slots.dart';
-import 'package:optiscan/constant.dart';
+import 'package:cloud_firestore/cloud_firestore.dart'; // Import Firestore
 
 class AvailabilityWidget extends StatefulWidget {
-  const AvailabilityWidget({super.key});
+  String docID;
+  AvailabilityWidget({Key? key, required this.docID});
 
   @override
   State<AvailabilityWidget> createState() => _AvailabilityWidgetState();
 }
 
 class _AvailabilityWidgetState extends State<AvailabilityWidget> {
-  List<String> timeSlots = ['12:44 PM', '01:00 PM', '02:30 PM', '04:15 PM'];
+  List<String> timeSlots = []; // Updated to store fetched time slots
+
+  @override
+  void initState() {
+    super.initState();
+    // Fetch and set appointment slots when the widget initializes
+    fetchAppointmentSlots();
+  }
+
+  void fetchAppointmentSlots() async {
+    try {
+      // Fetch appointment slots from Firestore
+      DocumentSnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore
+          .instance
+          .collection('appointments')
+          .doc(widget.docID)
+          .get();
+
+      // Check if document exists and contains appointment slots
+      if (snapshot.exists && snapshot.data()!['appointments'] != null) {
+        List<dynamic> appointments = snapshot.data()!['appointments'];
+        setState(() {
+          timeSlots = appointments
+              .map<String>((appointment) => appointment
+                  .split(' ')[1]) // Extracting time from appointment string
+              .toList();
+        });
+      }
+    } catch (error) {
+      print("Error fetching appointment slots: $error");
+    }
+  }
+
+  // Function to show time picker
   void _showTimePicker(int index) async {
     TimeOfDay? pickedTime = await showTimePicker(
       context: context,
@@ -18,9 +51,7 @@ class _AvailabilityWidgetState extends State<AvailabilityWidget> {
     );
 
     if (pickedTime != null) {
-      String formattedTime = pickedTime
-          .format(context); // Formats time to 12-hour format with AM/PM
-
+      String formattedTime = pickedTime.format(context);
       setState(() {
         timeSlots[index] = formattedTime;
       });
@@ -29,7 +60,7 @@ class _AvailabilityWidgetState extends State<AvailabilityWidget> {
 
   @override
   Widget build(BuildContext context) {
-    var height = MediaQuery.sizeOf(context).height;
+    var height = MediaQuery.of(context).size.height;
     return SizedBox(
       height: height / 5,
       child: GridView.builder(
@@ -43,11 +74,9 @@ class _AvailabilityWidgetState extends State<AvailabilityWidget> {
             child: Container(
               width: 50,
               decoration: BoxDecoration(
-                color: blueColor.withOpacity(0.6),
+                color: Colors.blue.withOpacity(0.6),
                 borderRadius: BorderRadius.all(
-                  Radius.circular(
-                    5,
-                  ),
+                  Radius.circular(5),
                 ),
               ),
               child: Row(

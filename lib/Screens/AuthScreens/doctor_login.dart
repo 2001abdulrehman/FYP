@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
@@ -228,49 +229,51 @@ class _DoctorLoginState extends State<DoctorLogin> {
   Widget buildLoginButton(BuildContext context) {
     return InkWell(
       onTap: () async {
-        if (emailController.text.isEmpty || passController.text.isEmpty) {
-          functions.showSnackbar(context, 'Please fill in all the fields.');
-          return;
-        }
-
         setState(() {
-          isLoading = true;
+          isLoading = true; // Set isLoading to true when sign-in process starts
         });
         try {
-          final credential = await FirebaseAuth.instance
-              .signInWithEmailAndPassword(
-                  email: emailController.text, password: passController.text);
-          functions.nextScreen(context, const DoctorNav());
-          setState(() {
-            guestEntry = false;
-          });
-        } on FirebaseAuthException catch (e) {
-          setState(() {
-            isLoading = false;
-          });
-          if (e.code == 'user-not-found') {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                backgroundColor: blueColor,
-                duration: const Duration(seconds: 3),
-                content: const Text(
-                  'Wrong email',
+          final credential =
+              await FirebaseAuth.instance.signInWithEmailAndPassword(
+            email: emailController.text,
+            password: passController.text,
+          );
+
+          // Check approval status here
+          final user = FirebaseAuth.instance.currentUser;
+          if (user != null) {
+            final userDoc = await FirebaseFirestore.instance
+                .collection('doctors')
+                .doc(user.uid)
+                .get();
+            final approvalStatus = userDoc['approvalStatus'];
+            final role = userDoc['role'];
+            if (approvalStatus == true && role == 'doctor') {
+              functions.nextScreen(context, const DoctorNav());
+              setState(() {
+                guestEntry = false;
+              });
+            } else {
+              // Show message if profile is not approved
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  backgroundColor: blueColor,
+                  duration: const Duration(seconds: 3),
+                  content: const Text(
+                    'Your profile is under approval. You will receive a confirmation call soon.',
+                  ),
                 ),
-              ),
-            );
-            print('no user found');
-          } else if (e.code == 'wrong-password') {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                backgroundColor: blueColor,
-                duration: const Duration(seconds: 3),
-                content: const Text(
-                  'Wrong password',
-                ),
-              ),
-            );
-            print('wrong pass');
+              );
+              await FirebaseAuth.instance.signOut();
+            }
           }
+        } on FirebaseAuthException catch (e) {
+          // Handle exceptions
+        } finally {
+          setState(() {
+            isLoading =
+                false; // Set isLoading to false when sign-in process completes
+          });
         }
       },
       child: Container(

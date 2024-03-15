@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:optiscan/Screens/DoctorSide/Appointments/completed_appointments.dart';
+import 'package:optiscan/Popups/exit_popup.dart';
+import 'package:optiscan/Screens/DoctorSide/Appointments/pending_appointments.dart';
 import 'package:optiscan/Screens/DoctorSide/Appointments/appointment_history.dart';
 import 'package:optiscan/Screens/DoctorSide/DoctorHome/doctor_home.dart';
 import 'package:optiscan/Screens/DoctorSide/DoctorProfile/doctor_profile.dart';
@@ -19,7 +20,7 @@ class DoctorNav extends StatefulWidget {
 class _DoctorNavState extends State<DoctorNav> {
   List<Widget?> screens = [
     const DoctorHome(),
-    const CompletedAppointments(),
+    const PendingAppointments(),
     const AppointmentHistory(),
     const DoctorProfile()
   ];
@@ -28,36 +29,41 @@ class _DoctorNavState extends State<DoctorNav> {
   @override
   Widget build(BuildContext context) {
     var width = MediaQuery.sizeOf(context).width;
-    return Scaffold(
-      body: screens[selectedIndex],
-      bottomNavigationBar: Container(
-        decoration: const BoxDecoration(
-          boxShadow: [
-            BoxShadow(
-              color: Color(0xffDDDDDD),
-              blurRadius: 6.0,
-              spreadRadius: 2.0,
-              offset: Offset(0.0, 0.0),
-            )
-          ],
-          color: Colors.white,
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(30),
-            topRight: Radius.circular(30),
+    return WillPopScope(
+        child: Scaffold(
+          body: screens[selectedIndex],
+          bottomNavigationBar: Container(
+            decoration: const BoxDecoration(
+              boxShadow: [
+                BoxShadow(
+                  color: Color(0xffDDDDDD),
+                  blurRadius: 6.0,
+                  spreadRadius: 2.0,
+                  offset: Offset(0.0, 0.0),
+                )
+              ],
+              color: Colors.white,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(30),
+                topRight: Radius.circular(30),
+              ),
+            ),
+            height: 80,
+            child: Row(
+              children: [
+                buildNavigationItems(width, Icons.home, 0, 'Home'),
+                buildNavigationItems(width, Icons.book, 1, 'Appointments'),
+                buildNavigationItems(width, Icons.history, 2, 'History'),
+                buildNavigationItems(
+                    width, CupertinoIcons.profile_circled, 3, 'Profile')
+              ],
+            ),
           ),
         ),
-        height: 80,
-        child: Row(
-          children: [
-            buildNavigationItems(width, Icons.home, 0, 'Home'),
-            buildNavigationItems(width, Icons.book, 1, 'Appointments'),
-            buildNavigationItems(width, Icons.history, 2, 'History'),
-            buildNavigationItems(
-                width, CupertinoIcons.profile_circled, 3, 'Profile')
-          ],
-        ),
-      ),
-    );
+        onWillPop: () async {
+          showExitPopup(context);
+          return false;
+        });
   }
 
   Widget buildNavigationItems(width, IconData icon, int index, String title) {

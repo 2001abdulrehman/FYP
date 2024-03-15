@@ -1,8 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:optiscan/constant.dart';
 
 class FeedBackScreen extends StatefulWidget {
-  const FeedBackScreen({super.key});
+  final String doctorUserId;
+  const FeedBackScreen({super.key, required this.doctorUserId});
 
   @override
   State<FeedBackScreen> createState() => _FeedBackScreenState();
@@ -42,22 +44,46 @@ class _FeedBackScreenState extends State<FeedBackScreen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Expanded(
-                        child: ListView.builder(
-                            physics: BouncingScrollPhysics(),
-                            itemCount: 10,
-                            itemBuilder: (context, index) {
-                              return Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 10.0),
-                                child: Container(
-                                  child: const Row(
+                      child: StreamBuilder(
+                        stream: FirebaseFirestore.instance
+                            .collection('reviews')
+                            .where('docId', isEqualTo: widget.doctorUserId)
+                            .snapshots(),
+                        builder:
+                            (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          } else if (snapshot.hasError) {
+                            return Center(
+                              child: Text('Error: ${snapshot.error}'),
+                            );
+                          } else if (snapshot.data!.docs.isEmpty) {
+                            return const Center(
+                              child: Text('This doctor has no reviews.'),
+                            );
+                          } else {
+                            final reviewData = snapshot.data!.docs;
+
+                            return ListView.builder(
+                              physics: const BouncingScrollPhysics(),
+                              itemCount: snapshot.data!.docs.length,
+                              itemBuilder: (context, index) {
+                                final review = reviewData[index];
+
+                                return Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 10.0),
+                                  child: Row(
                                     children: [
                                       CircleAvatar(
-                                        backgroundImage: AssetImage(
-                                            'assets/feedback_image.png'),
+                                        backgroundImage:
+                                            NetworkImage(review['reviewImage']),
                                         radius: 30,
                                       ),
-                                      SizedBox(
+                                      const SizedBox(
                                         width: 10,
                                       ),
                                       SizedBox(
@@ -66,24 +92,28 @@ class _FeedBackScreenState extends State<FeedBackScreen> {
                                           crossAxisAlignment:
                                               CrossAxisAlignment.stretch,
                                           children: [
-                                            Text('Kashif',
-                                                style: TextStyle(fontSize: 15)),
                                             Text(
-                                              'Dr. Zain is a remarkable doctor',
-                                              style: TextStyle(fontSize: 13),
+                                              review['name'],
+                                              style:
+                                                  const TextStyle(fontSize: 15),
                                             ),
                                             Text(
-                                              '29-11-2023 ',
-                                              style: TextStyle(fontSize: 10),
-                                            )
+                                              review['reviewText'],
+                                              style:
+                                                  const TextStyle(fontSize: 13),
+                                            ),
                                           ],
                                         ),
                                       )
                                     ],
                                   ),
-                                ),
-                              );
-                            })),
+                                );
+                              },
+                            );
+                          }
+                        },
+                      ),
+                    ),
                   ],
                 ),
               ),

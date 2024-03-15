@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:optiscan/Screens/PatientSide/Available%20Doctors/doctor_profile.dart';
 import 'package:optiscan/constant.dart';
 
 import 'book_appointment_screen.dart';
 
 class AllDoctors extends StatefulWidget {
-  const AllDoctors({super.key});
+  const AllDoctors({Key? key}) : super(key: key);
 
   @override
   State<AllDoctors> createState() => _AllDoctorsState();
@@ -14,7 +15,6 @@ class AllDoctors extends StatefulWidget {
 class _AllDoctorsState extends State<AllDoctors> {
   @override
   Widget build(BuildContext context) {
-    var height = MediaQuery.sizeOf(context).height;
     return Scaffold(
       backgroundColor: blueColor,
       appBar: AppBar(
@@ -39,85 +39,116 @@ class _AllDoctorsState extends State<AllDoctors> {
                 ),
               ),
               child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10),
-                child: GridView.builder(
-                  physics: BouncingScrollPhysics(),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 10,
-                      mainAxisSpacing: 10,
-                      childAspectRatio: 1,
-                      mainAxisExtent: 220),
-                  itemCount: 10,
-                  itemBuilder: (_, index) {
-                    return InkWell(
-                      onTap: () =>
-                          functions.nextScreen(context, DoctorProfileScreen()),
-                      child: Container(
-                        height: 400,
-                        decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(20)),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 5.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              const CircleAvatar(
-                                backgroundImage: AssetImage('assets/zain.png'),
-                                radius: 50,
-                              ),
-                              const Align(
-                                alignment: Alignment.center,
-                                child: Text('Doctor Zain'),
-                              ),
-                              const Align(
-                                alignment: Alignment.center,
-                                child: Text('Specialty'),
-                              ),
-                              const SizedBox(
-                                height: 5,
-                              ),
-                              Text('Location:Pindi',
-                                  style: TextStyle(
-                                      color: blueColor,
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.bold)),
-                              const SizedBox(
-                                height: 10,
-                              ),
-                              InkWell(
-                                onTap: () {
-                                  functions.nextScreen(
-                                      context, BookAppointmentScreen());
-                                },
-                                child: Container(
-                                  alignment: Alignment.center,
-                                  decoration: BoxDecoration(
-                                      color: blueColor,
-                                      borderRadius: BorderRadius.circular(20)),
-                                  height: 30,
-                                  width: 70,
-                                  child: const Text(
-                                    'Book Appointment >',
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white,
-                                        fontSize: 10),
-                                  ),
-                                ),
-                              )
-                            ],
-                          ),
-                        ),
+                padding: const EdgeInsets.symmetric(
+                  vertical: 10.0,
+                  horizontal: 10,
+                ),
+                child: StreamBuilder<QuerySnapshot>(
+                  stream: FirebaseFirestore.instance
+                      .collection('doctors')
+                      .where('approvalStatus', isEqualTo: true)
+                      .snapshots(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    if (snapshot.hasError) {
+                      return Center(child: Text('Error: ${snapshot.error}'));
+                    }
+                    final doctors = snapshot.data!.docs;
+                    return GridView.builder(
+                      physics: BouncingScrollPhysics(),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 10,
+                        mainAxisSpacing: 10,
+                        childAspectRatio: 1,
+                        mainAxisExtent: 220,
                       ),
+                      itemCount: doctors.length,
+                      itemBuilder: (_, index) {
+                        final doctor = doctors[index];
+                        return InkWell(
+                          onTap: () => functions.nextScreen(
+                            context,
+                            DoctorProfileScreen(
+                              doctorPicture: doctor['profileImage'],
+                              doctorAbout: doctor['about'],
+                              doctorName: doctor['name'],
+                              doctorNumber: doctor['doctorPhoneNumber'],
+                              doctorSpecialty: doctor['specialty'],
+                              doctorUserId: doctor['uid'],
+                              clinicAddress: doctor['clinicAddress'],
+                              hospitalAddress: doctor['servingHospital'],
+                            ),
+                          ),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 5.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  CircleAvatar(
+                                    backgroundImage:
+                                        NetworkImage(doctor['profileImage']),
+                                    radius: 50,
+                                  ),
+                                  Align(
+                                    alignment: Alignment.center,
+                                    child: Text(doctor['name']),
+                                  ),
+                                  Align(
+                                    alignment: Alignment.center,
+                                    child: Text(doctor['specialty']),
+                                  ),
+                                  const SizedBox(height: 5),
+                                  InkWell(
+                                    onTap: () {
+                                      functions.nextScreen(
+                                        context,
+                                        BookAppointmentScreen(
+                                          docID: doctor['uid'],
+                                          docImage: doctor['profileImage'],
+                                          docName: doctor['name'],
+                                        ),
+                                      );
+                                    },
+                                    child: Container(
+                                      alignment: Alignment.center,
+                                      decoration: BoxDecoration(
+                                        color: blueColor,
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                      height: 30,
+                                      width: 140,
+                                      child: const Text(
+                                        'Book Appointment >',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                          fontSize: 10,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        );
+                      },
                     );
                   },
                 ),
               ),
             ),
-          )
+          ),
         ],
       ),
     );

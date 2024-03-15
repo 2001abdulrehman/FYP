@@ -118,7 +118,14 @@ class _AdminLoginState extends State<AdminLogin> {
             ),
             InkWell(
               onTap: () {
-                functions.nextScreen(context, const AdminDashboard());
+                if (emailController.text == 'admin@gmail.com' &&
+                    passController.text == '123123') {
+                  functions.nextScreen(context, const AdminDashboard());
+                  print('hello');
+                } else {
+                  functions.showSnackbar(
+                      context, 'Please check the email and password.');
+                }
               },
               child: Container(
                 height: 50,

@@ -1,12 +1,16 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:optiscan/Popups/exit_popup.dart';
+import 'package:optiscan/Screens/PatientSide/Appointments/completed_appointments.dart';
+import 'package:optiscan/Screens/PatientSide/Appointments/pending_appointments.dart';
 import 'package:optiscan/Screens/PatientSide/PatientProfile/patient_profile.dart';
 import 'package:optiscan/Screens/PatientSide/about_screen.dart';
 import 'package:optiscan/Screens/PatientSide/help_screen.dart';
 import 'package:optiscan/Screens/PatientSide/home_screen.dart';
 
 import '../../../constant.dart';
+import '../../DoctorSide/Appointments/pending_appointments.dart';
 
 class PatientNavBar extends StatefulWidget {
   const PatientNavBar({super.key});
@@ -18,8 +22,8 @@ class PatientNavBar extends StatefulWidget {
 class _PatientNavBarState extends State<PatientNavBar> {
   List<Widget?> screens = [
     PatientHome(),
-    AboutScreen(),
-    HelpScreen(),
+    PatientPendingAppointments(),
+    PatientAppointmentHistory(),
     PatientProfile()
   ];
   int selectedIndex = 0;
@@ -27,34 +31,39 @@ class _PatientNavBarState extends State<PatientNavBar> {
   @override
   Widget build(BuildContext context) {
     var width = MediaQuery.sizeOf(context).width;
-    return Scaffold(
-      body: screens[selectedIndex],
-      bottomNavigationBar: Container(
-        decoration: const BoxDecoration(
-          boxShadow: [
-            BoxShadow(
-              color: Color(0xffDDDDDD),
-              blurRadius: 6.0,
-              spreadRadius: 2.0,
-              offset: Offset(0.0, 0.0),
-            )
-          ],
-          color: Colors.white,
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(30),
-            topRight: Radius.circular(30),
+    return WillPopScope(
+      onWillPop: () async {
+        showExitPopup(context);
+        return false;
+      },
+      child: Scaffold(
+        body: screens[selectedIndex],
+        bottomNavigationBar: Container(
+          decoration: const BoxDecoration(
+            boxShadow: [
+              BoxShadow(
+                color: Color(0xffDDDDDD),
+                blurRadius: 6.0,
+                spreadRadius: 2.0,
+                offset: Offset(0.0, 0.0),
+              )
+            ],
+            color: Colors.white,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(30),
+              topRight: Radius.circular(30),
+            ),
           ),
-        ),
-        height: 80,
-        child: Row(
-          children: [
-            buildNavigationItems(width, Icons.home, 0, 'Home'),
-            buildNavigationItems(width, Icons.info, 1, 'About'),
-            buildNavigationItems(
-                width, FontAwesomeIcons.hireAHelper, 2, 'Help'),
-            buildNavigationItems(
-                width, CupertinoIcons.profile_circled, 3, 'Profile')
-          ],
+          height: 80,
+          child: Row(
+            children: [
+              buildNavigationItems(width, Icons.home, 0, 'Home'),
+              buildNavigationItems(width, Icons.book, 1, 'Appointments'),
+              buildNavigationItems(width, Icons.history, 2, 'History'),
+              buildNavigationItems(
+                  width, CupertinoIcons.profile_circled, 3, 'Profile')
+            ],
+          ),
         ),
       ),
     );

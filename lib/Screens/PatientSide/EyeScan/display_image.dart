@@ -1,12 +1,15 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_tflite/flutter_tflite.dart';
+import 'package:image/image.dart' as img;
 import 'package:optiscan/Screens/PatientSide/Results/results.dart';
 import 'package:optiscan/constant.dart';
+import 'package:path_provider/path_provider.dart';
 
 class DisplayImage extends StatefulWidget {
-  const DisplayImage({super.key, required this.imagePath});
+  const DisplayImage({Key? key, required this.imagePath}) : super(key: key);
   final String imagePath;
 
   @override
@@ -15,48 +18,106 @@ class DisplayImage extends StatefulWidget {
 
 class _DisplayImageState extends State<DisplayImage> {
   String resultMessage = 'No disease detected'; // Default message
-
-  // void loadModel() async {
-  //   await Tflite.loadModel(
-  //     model: 'assets/model/model1.tflite',
-  //   );
-  // }
-
-  // Future<List> classifyImage(String imagePath) async {
-  //   var result = await Tflite.runModelOnImage(
-  //     path: imagePath,
-  //     imageMean: 0.0,
-  //     imageStd: 255.0,
-  //     numResults: 2,
-  //     threshold: 0.2,
-  //     asynch: true,
-  //   );
-
-  //   if (result == null) {
-  //     // Handle the null case
-  //     return [];
-  //   }
-
-  //   return result;
-  // }
-
-  // Future<void> classifyImageAndUpdateUI(String imagePath) async {
-  //   var result = await classifyImage(imagePath);
-
-  //   // Assuming the model returns a list of results, and you are interested in the first one
-  //   String detectedDisease =
-  //       result.isNotEmpty ? result[0]['label'] : 'No disease detected';
-
-  //   setState(() {
-  //     resultMessage = detectedDisease;
-  //   });
-  //   print(detectedDisease);
-  // }
-
+  List? _output;
   @override
   void initState() {
-    //loadModel();
+    debugPrint(_output.toString());
     super.initState();
+    loadModel();
+  }
+
+  void loadModel() async {
+    await Tflite.loadModel(
+        model: 'assets/model/quantized_sig.tflite',
+        labels: 'assets/labels.txt');
+    setState(() {});
+  }
+
+  Future<void> classifyImageAndUpdateUI(String imagePath) async {
+    try {
+      // Preprocess the image
+      img.Image processedImage = preprocessImage(File(imagePath));
+
+      // Save the processed image to a temporary file
+      final tempDir = await getTemporaryDirectory();
+      final tempFilePath = '${tempDir.path}/processed_image4.jpg';
+      final png = img.encodePng(processedImage);
+      // Write the PNG formatted data to a file.
+      try {
+        await File(tempFilePath).writeAsBytes(png);
+        debugPrint('saved processed image');
+        debugPrint(tempFilePath);
+      } catch (e) {
+        throw Exception(e);
+      }
+
+      // Run model inference
+      try {
+        var output = await Tflite.runModelOnImage(
+          path: tempFilePath,
+        );
+        setState(() {
+          _output = output;
+        });
+        String label = extractLabel(output.toString());
+
+        debugPrint(_output.toString());
+        functions.nextScreen(
+            context,
+            Results(
+              output: label,
+            ));
+      } catch (e) {
+        throw Exception(e);
+      }
+    } catch (e) {
+      print('Error during inference: $e');
+      setState(() {
+        resultMessage = 'Error during inference';
+      });
+    }
+  }
+
+  img.Image preprocessImage(File imageFile) {
+    img.Image? image = img.decodeImage(imageFile.readAsBytesSync());
+    if (image == null) {
+      throw Exception("Failed to decode image.");
+    }
+
+    // Resize the image to match the input size expected by the model (150x150)
+    img.Image resizedImage = img.copyResize(image, width: 75, height: 75);
+
+    // Convert the image to a byte buffer
+    Uint8List buffer = resizedImage.getBytes();
+
+    // Ensure the buffer size is exactly 22000 bytes
+    if (buffer.length != 22500) {
+      debugPrint(buffer.length.toString());
+      throw Exception('Invalid input tensor size');
+    }
+
+    debugPrint(buffer.length.toString());
+
+    return resizedImage;
+  }
+
+  Future<File> _saveTempImage(img.Image image) async {
+    Directory tempDir = await getTemporaryDirectory();
+    File tempImageFile = File('${tempDir.path}/temp_image.jpg');
+    tempImageFile.writeAsBytesSync(img.encodeJpg(image));
+    return tempImageFile;
+  }
+
+  String extractLabel(String text) {
+    // Define a regular expression pattern to match the label
+    RegExp regExp = RegExp(r"label:\s*(\w+)");
+
+    // Extract the label using the pattern
+    RegExpMatch match = regExp.firstMatch(text)!;
+
+    // Check if a match is found and return the label
+
+    return match.group(1)!; // Extracted label
   }
 
   @override
@@ -81,42 +142,42 @@ class _DisplayImageState extends State<DisplayImage> {
         ),
       ),
       body: SafeArea(
-          child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Center(
-            child: Image.file(
-              File(widget.imagePath),
-              height: 300,
-              fit: BoxFit.cover,
-            ),
-          ),
-          const SizedBox(
-            height: 20,
-          ),
-          InkWell(
-            onTap: () {
-              functions.nextScreen(context, Results());
-              //classifyImage(widget.imagePath);
-              //classifyImageAndUpdateUI(widget.imagePath);
-            },
-            child: Container(
-              height: 50,
-              width: 200,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                  color: blueColor, borderRadius: BorderRadius.circular(30)),
-              child: const Text(
-                'Start Scanning',
-                style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Center(
+              child: Image.file(
+                File(widget.imagePath),
+                height: 300,
+                fit: BoxFit.cover,
               ),
             ),
-          )
-        ],
-      )),
+            const SizedBox(height: 20),
+            InkWell(
+              onTap: () {
+                classifyImageAndUpdateUI(widget.imagePath);
+              },
+              child: Container(
+                height: 50,
+                width: 200,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: blueColor,
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                child: const Text(
+                  'Start Scanning',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

@@ -1,4 +1,6 @@
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:optiscan/Screens/PatientSide/Available%20Doctors/all_doctors.dart';
 import 'package:optiscan/Screens/PatientSide/AvailableStores/all_stores.dart';
@@ -20,6 +22,25 @@ class _PatientHomeState extends State<PatientHome> {
   ];
   final CarouselController carouselController = CarouselController();
   int currentIndex = 0;
+  User? _user;
+  Map<String, dynamic>? _userData;
+  Future<void> _getUserData() async {
+    _user = auth.currentUser;
+    if (_user != null) {
+      DocumentSnapshot userDoc =
+          await firestore.collection('patients').doc(_user!.uid).get();
+      setState(() {
+        _userData = userDoc.data() as Map<String, dynamic>;
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    _getUserData();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -28,24 +49,30 @@ class _PatientHomeState extends State<PatientHome> {
         backgroundColor: scaffoldColor,
         leading: Padding(
           padding: const EdgeInsets.only(left: 10.0),
-          child: CircleAvatar(
-            radius: 30,
-            backgroundImage: AssetImage(
-              'assets/feedback_image.png',
-            ),
-          ),
+          child: _userData == null
+              ? const Center(child: CircularProgressIndicator())
+              : CircleAvatar(
+                  radius: 30,
+                  backgroundImage: NetworkImage(
+                    _userData!['profileImage'],
+                  ),
+                ),
         ),
-        title: const Text(
-          'HI KASHIF',
-          style: TextStyle(
-              color: Colors.blue, fontWeight: FontWeight.bold, fontSize: 15),
-        ),
+        title: _userData == null
+            ? const SizedBox()
+            : Text(
+                _userData!['name'],
+                style: const TextStyle(
+                    color: Colors.blue,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15),
+              ),
       ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20),
           child: SingleChildScrollView(
-            physics: BouncingScrollPhysics(),
+            physics: const BouncingScrollPhysics(),
             child: Column(
               children: [
                 InkWell(

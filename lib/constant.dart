@@ -1,6 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:optiscan/Services/auth_service.dart';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'Functions/functions.dart';
 
 Color blueColor = Color(0xff167FFF);
@@ -19,8 +20,16 @@ TextEditingController storePhoneNumberController = TextEditingController();
 TextEditingController storeLocationController = TextEditingController();
 TextEditingController appointmentDateController = TextEditingController();
 TextEditingController doctorAboutController = TextEditingController();
-TextEditingController doctorAddreessController = TextEditingController();
+TextEditingController doctorServingHospitalController = TextEditingController();
 TextEditingController doctorSpecialtyController = TextEditingController();
+TextEditingController doctorPmcController = TextEditingController();
+TextEditingController doctorPhoneNumberController = TextEditingController();
 TextEditingController doctorClinicController = TextEditingController();
 TextEditingController searchController = TextEditingController();
 bool guestEntry = false;
+
+final auth = FirebaseAuth.instance;
+FirebaseFirestore firestore = FirebaseFirestore.instance;
+
+User? user;
+Map<String, dynamic>? userData;

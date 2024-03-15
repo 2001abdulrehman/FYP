@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:optiscan/constant.dart';
 
@@ -9,6 +11,17 @@ class DoctorReviews extends StatefulWidget {
 }
 
 class _DoctorReviewsState extends State<DoctorReviews> {
+  User? _user;
+  Future<void> _getUser() async {
+    _user = FirebaseAuth.instance.currentUser;
+  }
+
+  @override
+  void initState() {
+    _getUser();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     var height = MediaQuery.sizeOf(context).height;
@@ -42,22 +55,46 @@ class _DoctorReviewsState extends State<DoctorReviews> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Expanded(
-                        child: ListView.builder(
-                            physics: BouncingScrollPhysics(),
-                            itemCount: 10,
-                            itemBuilder: (context, index) {
-                              return Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 10.0),
-                                child: Container(
-                                  child: const Row(
+                      child: StreamBuilder(
+                        stream: FirebaseFirestore.instance
+                            .collection('reviews')
+                            .where('docId', isEqualTo: _user!.uid)
+                            .snapshots(),
+                        builder:
+                            (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          } else if (snapshot.hasError) {
+                            return Center(
+                              child: Text('Error: ${snapshot.error}'),
+                            );
+                          } else if (snapshot.data!.docs.isEmpty) {
+                            return const Center(
+                              child: Text('This doctor has no reviews.'),
+                            );
+                          } else {
+                            final reviewData = snapshot.data!.docs;
+
+                            return ListView.builder(
+                              physics: const BouncingScrollPhysics(),
+                              itemCount: snapshot.data!.docs.length,
+                              itemBuilder: (context, index) {
+                                final review = reviewData[index];
+
+                                return Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 10.0),
+                                  child: Row(
                                     children: [
                                       CircleAvatar(
                                         backgroundImage:
-                                            AssetImage('assets/zain.png'),
+                                            NetworkImage(review['reviewImage']),
                                         radius: 30,
                                       ),
-                                      SizedBox(
+                                      const SizedBox(
                                         width: 10,
                                       ),
                                       SizedBox(
@@ -66,22 +103,28 @@ class _DoctorReviewsState extends State<DoctorReviews> {
                                           crossAxisAlignment:
                                               CrossAxisAlignment.stretch,
                                           children: [
-                                            Text('Kashif',
-                                                style: TextStyle(fontSize: 10)),
-                                            Text('Pakistan',
-                                                style: TextStyle(fontSize: 10)),
                                             Text(
-                                              'Dr. Zain is a remarkable doctor',
-                                              style: TextStyle(fontSize: 10),
-                                            )
+                                              review['name'],
+                                              style:
+                                                  const TextStyle(fontSize: 15),
+                                            ),
+                                            Text(
+                                              review['reviewText'],
+                                              style:
+                                                  const TextStyle(fontSize: 13),
+                                            ),
                                           ],
                                         ),
                                       )
                                     ],
                                   ),
-                                ),
-                              );
-                            })),
+                                );
+                              },
+                            );
+                          }
+                        },
+                      ),
+                    ),
                   ],
                 ),
               ),

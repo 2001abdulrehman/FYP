@@ -4,7 +4,8 @@ import 'package:optiscan/Screens/PatientSide/AvailableStores/all_stores.dart';
 import 'package:optiscan/constant.dart';
 
 class Results extends StatefulWidget {
-  const Results({super.key});
+  String output;
+  Results({super.key, required this.output});
 
   @override
   State<Results> createState() => _ResultsState();
@@ -57,48 +58,51 @@ class _ResultsState extends State<Results> {
               Container(
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10), color: blueColor),
-                child: const Padding(
-                  padding: const EdgeInsets.symmetric(
-                      vertical: 10.0, horizontal: 20),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 20),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Text.rich(
-                        TextSpan(
-                          text: "Patient Name :",
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 15,
-                          ),
-                          children: [
-                            TextSpan(
-                              text: ' Kashif',
-                              style: TextStyle(
-                                  color: Colors.green,
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Text.rich(
-                        TextSpan(
-                          text: "Patient Number :",
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 13,
-                          ),
-                          children: [
-                            TextSpan(
-                              text: ' 03456798576',
-                              style: TextStyle(
-                                  color: Colors.green,
+                      !guestEntry
+                          ? Text.rich(
+                              TextSpan(
+                                text: "Patient Name :",
+                                style: const TextStyle(
+                                  color: Colors.white,
                                   fontSize: 15,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                          ],
-                        ),
-                      ),
+                                ),
+                                children: [
+                                  TextSpan(
+                                    text: ' Kashif',
+                                    style: TextStyle(
+                                        color: Colors.green,
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                ],
+                              ),
+                            )
+                          : SizedBox(),
+                      !guestEntry
+                          ? Text.rich(
+                              TextSpan(
+                                text: "Patient Number :",
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 13,
+                                ),
+                                children: [
+                                  TextSpan(
+                                    text: ' 03456798576',
+                                    style: TextStyle(
+                                        color: Colors.green,
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                ],
+                              ),
+                            )
+                          : SizedBox(),
                       Text(
                         'Time : 11:07 PM',
                         style: TextStyle(color: Colors.white),
@@ -114,13 +118,13 @@ class _ResultsState extends State<Results> {
                       Text.rich(
                         TextSpan(
                           text: "Cataracts:",
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: Colors.white,
                             fontSize: 13,
                           ),
                           children: [
                             TextSpan(
-                              text: ' Not Found',
+                              text: widget.output,
                               style: TextStyle(
                                   color: Colors.green,
                                   fontSize: 15,
@@ -128,27 +132,6 @@ class _ResultsState extends State<Results> {
                             ),
                           ],
                         ),
-                      ),
-                      Text.rich(
-                        TextSpan(
-                          text: "Glaucoma: ",
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 13,
-                          ),
-                          children: [
-                            TextSpan(
-                              text: ' Found',
-                              style: TextStyle(
-                                  color: Colors.red,
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(
-                        height: 10,
                       ),
                       Text(
                         'We have a 70% confidence level that your eye is exhibiting symptoms indicative of a Glaucoma disease',

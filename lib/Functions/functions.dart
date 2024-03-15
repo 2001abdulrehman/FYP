@@ -15,24 +15,17 @@ class Functions {
   }
 
   void openGoogleMaps(String address) async {
-    // Encode the address to handle special characters
     String encodedAddress = Uri.encodeComponent(address);
-
-    // Construct the Google Maps URL with the geo parameter
 
     var url = 'https://www.google.com/maps/search/?api=1&query=$encodedAddress';
 
-    // Check if the Google Maps app is installed
     await launch(url);
   }
 
   void makePhoneCall(String phoneNumber) async {
-    // Check if the phone app is available
     if (await canLaunch('tel:$phoneNumber')) {
-      // Launch the phone app with the specified phone number
       await launch('tel:$phoneNumber');
     } else {
-      // If the app is not available, show an error
       throw 'Could not launch the phone app';
     }
   }
@@ -77,7 +70,7 @@ class Functions {
   }
 
   launchWhatsapp() async {
-    const phone = '+92 3231559163';
+    const phone = '+92 3102548084';
     const url = 'https://wa.me/$phone';
     await launch(url);
   }

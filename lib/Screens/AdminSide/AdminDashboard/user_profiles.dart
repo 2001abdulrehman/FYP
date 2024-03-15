@@ -101,7 +101,7 @@ class _UserProfilesState extends State<UserProfiles> {
                                       CrossAxisAlignment.stretch,
                                   children: [
                                     Text(
-                                      'Kashif Ali',
+                                      'Muhammad Kashif Ali',
                                       style: TextStyle(
                                           color: blueColor,
                                           fontSize: 13,

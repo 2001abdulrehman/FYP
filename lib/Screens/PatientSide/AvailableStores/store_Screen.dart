@@ -2,7 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:optiscan/constant.dart';
 
 class StoreScreen extends StatefulWidget {
-  const StoreScreen({super.key});
+  final String? storeName;
+  final String? storeLocation;
+  final String? storeNumber;
+  final String? storeAbout;
+  final String? storePicture;
+  StoreScreen(
+      {super.key,
+      this.storeName,
+      this.storeLocation,
+      this.storeAbout,
+      this.storeNumber,
+      this.storePicture});
 
   @override
   State<StoreScreen> createState() => _StoreScreenState();
@@ -38,28 +49,36 @@ class _StoreScreenState extends State<StoreScreen> {
           const SizedBox(
             height: 20,
           ),
-          Image.asset('assets/stores.png'),
-          const Padding(
-            padding: EdgeInsets.all(8.0),
-            child: Text(
-              'Al Kashif Store',
-              style:
-                  TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+          Container(
+            height: 170,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                  image: NetworkImage(widget.storePicture!), fit: BoxFit.fill),
             ),
           ),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 8.0),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
             child: Text(
-              'Lorem Ipsum is simply dummy text of the printing and typesetting industry Lorem Ipsum is simply dummy text of the printing and typesetting industry',
-              style: TextStyle(color: Colors.black, fontSize: 10),
+              widget.storeName!,
+              style: const TextStyle(
+                  color: Colors.black, fontWeight: FontWeight.bold),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: Text(
+              widget.storeAbout!,
+              style: const TextStyle(color: Colors.black, fontSize: 10),
             ),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 5),
             child: InkWell(
               onTap: () {
-                //functions.nextScreen(context, const StoreScreen());
-                functions.makePhoneCall('03231559163');
+                functions.makePhoneCall(
+                  widget.storeNumber!,
+                );
               },
               child: Container(
                 width: 130,
@@ -89,8 +108,9 @@ class _StoreScreenState extends State<StoreScreen> {
           Expanded(
               child: InkWell(
             onTap: () {
-              //functions.nextScreen(context, const StoreScreen());
-              functions.openGoogleMaps(storeLocationController.text);
+              functions.openGoogleMaps(
+                widget.storeLocation!,
+              );
             },
             child: Stack(
               children: [
@@ -113,7 +133,7 @@ class _StoreScreenState extends State<StoreScreen> {
                     ),
                     alignment: Alignment.center,
                     child: Text(
-                      'Al Kashif Store',
+                      widget.storeName!,
                       style: TextStyle(color: blueColor),
                     ),
                   ),

@@ -1,9 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:optiscan/constant.dart';
 
 class CreateSlots extends StatefulWidget {
-  const CreateSlots({super.key});
+  String userID;
+  CreateSlots({super.key, required this.userID});
 
   @override
   State<CreateSlots> createState() => _CreateSlotsState();
@@ -92,6 +94,7 @@ class _CreateSlotsState extends State<CreateSlots> {
                       ),
                     );
                   });
+                  debugPrint(selectedTimeStr);
                 }
               },
               child: Container(
@@ -124,10 +127,7 @@ class _CreateSlotsState extends State<CreateSlots> {
             ),
             InkWell(
               onTap: () {
-                // Handle the action when the user taps the button
-                // For example, show a snackbar
-                functions.popScreen(context);
-                functions.showSnackbar(context, 'Time Slot Created');
+                createAppointment();
               },
               child: Container(
                 alignment: Alignment.center,
@@ -146,5 +146,59 @@ class _CreateSlotsState extends State<CreateSlots> {
         ),
       ),
     );
+  }
+
+  void createAppointment() {
+    if (selecteddate.isNotEmpty && selectedTimeStr.isNotEmpty) {
+      String appointmentDateTime = '$selecteddate $selectedTimeStr';
+
+      FirebaseFirestore.instance
+          .collection('appointments')
+          .doc(widget.userID)
+          .get()
+          .then((docSnapshot) {
+        if (docSnapshot.exists) {
+          // Document exists, update the array
+          FirebaseFirestore.instance
+              .collection('appointments')
+              .doc(widget.userID)
+              .update({
+            'appointments': FieldValue.arrayUnion([appointmentDateTime]),
+          }).then((value) {
+            functions.popScreen(context);
+            functions.showSnackbar(context, 'Appointment Slot Created');
+          }).catchError((error) {
+            functions.popScreen(context);
+            functions.showSnackbar(
+                context, 'Failed to create appointment slot');
+            print("Failed to add appointment: $error");
+          });
+        } else {
+          // Document doesn't exist, create it with the initial appointment
+          FirebaseFirestore.instance
+              .collection('appointments')
+              .doc(widget.userID)
+              .set({
+            'appointments': [appointmentDateTime],
+          }).then((value) {
+            functions.popScreen(context);
+            functions.showSnackbar(context, 'Appointment Slot Created');
+          }).catchError((error) {
+            functions.popScreen(context);
+            functions.showSnackbar(
+                context, 'Failed to create appointment slot');
+            print("Failed to create document: $error");
+          });
+        }
+      }).catchError((error) {
+        functions.popScreen(context);
+        functions.showSnackbar(
+            context, 'Error occurred while checking document');
+        print("Error checking document: $error");
+      });
+    } else {
+      functions.popScreen(context);
+      functions.showSnackbar(context, 'Please select date and time');
+    }
   }
 }

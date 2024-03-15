@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:optiscan/Screens/PatientSide/Available%20Doctors/book_appointment_screen.dart';
 import 'package:optiscan/Screens/PatientSide/Available%20Doctors/feedback_screen.dart';
@@ -6,7 +7,24 @@ import 'package:optiscan/constant.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class DoctorProfileScreen extends StatefulWidget {
-  const DoctorProfileScreen({super.key});
+  String doctorPicture;
+  String doctorName;
+  String doctorSpecialty;
+  String doctorAbout;
+  String doctorNumber;
+  String doctorUserId;
+  String clinicAddress;
+  String hospitalAddress;
+  DoctorProfileScreen(
+      {Key? key,
+      required this.doctorPicture,
+      required this.doctorAbout,
+      required this.doctorName,
+      required this.doctorNumber,
+      required this.doctorSpecialty,
+      required this.doctorUserId,
+      required this.clinicAddress,
+      required this.hospitalAddress});
 
   @override
   State<DoctorProfileScreen> createState() => _DoctorProfileScreenState();
@@ -16,10 +34,12 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
   DateTime selectedDate = DateTime.now();
   bool picked = false;
   String address = '';
+
   @override
   Widget build(BuildContext context) {
-    var height = MediaQuery.sizeOf(context).height;
-    var width = MediaQuery.sizeOf(context).width;
+    var height = MediaQuery.of(context).size.height;
+    var width = MediaQuery.of(context).size.width;
+
     return Scaffold(
       backgroundColor: blueColor,
       appBar: AppBar(
@@ -44,19 +64,20 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
                 ),
               ),
               child: Padding(
-                padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 10),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const SizedBox(
+                    SizedBox(
                       width: double.infinity,
                       child: Row(
                         children: [
                           CircleAvatar(
-                            backgroundImage: AssetImage('assets/zain.png'),
+                            backgroundImage: NetworkImage(widget.doctorPicture),
                             radius: 50,
                           ),
-                          SizedBox(
+                          const SizedBox(
                             width: 10,
                           ),
                           SizedBox(
@@ -66,20 +87,26 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
                                 Text(
-                                  'Doctor Zain',
-                                  style: TextStyle(
+                                  widget.doctorName,
+                                  style: const TextStyle(
                                       color: Colors.black,
                                       fontWeight: FontWeight.bold),
                                 ),
                                 Text(
-                                  'Specialty',
-                                  style: TextStyle(
+                                  'Specialty:${widget.doctorSpecialty}',
+                                  style: const TextStyle(
                                       color: Color(0xff6B6B6B),
                                       fontWeight: FontWeight.bold),
                                 ),
                                 Text(
-                                  'Pindi, Pakistan',
-                                  style: TextStyle(
+                                  'Serving Hospital: ${widget.hospitalAddress}',
+                                  style: const TextStyle(
+                                      color: Color(0xff6B6B6B),
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                Text(
+                                  'Clinic Address: ${widget.clinicAddress}',
+                                  style: const TextStyle(
                                       color: Color(0xff6B6B6B),
                                       fontWeight: FontWeight.bold),
                                 ),
@@ -96,9 +123,9 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
                           fontWeight: FontWeight.bold,
                           fontSize: 20),
                     ),
-                    const Text(
-                      'Meet Zain, your dedicated healthcare partner. As a passionate and experienced [specialty] practitioner, I am committed to providing personalized and compassionate care. Join me on this journey towards better health, where your well-being is my top priority',
-                      style: TextStyle(
+                    Text(
+                      widget.doctorAbout,
+                      style: const TextStyle(
                           color: Colors.black,
                           fontWeight: FontWeight.bold,
                           fontSize: 10),
@@ -106,15 +133,14 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
                     const SizedBox(
                       height: 20,
                     ),
-
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         InkWell(
                           onTap: () async {
                             // Encode the address to handle special characters
-                            String encodedAddress = Uri.encodeComponent(
-                                doctorAddreessController.text);
+                            String encodedAddress =
+                                Uri.encodeComponent(widget.hospitalAddress);
 
                             var url =
                                 'https://www.google.com/maps/search/?api=1&query=$encodedAddress';
@@ -141,7 +167,12 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
                         InkWell(
                           onTap: () {
                             functions.nextScreen(
-                                context, BookAppointmentScreen());
+                                context,
+                                BookAppointmentScreen(
+                                  docID: widget.doctorUserId,
+                                  docImage: widget.doctorPicture,
+                                  docName: widget.doctorName,
+                                ));
                           },
                           child: Container(
                             alignment: Alignment.center,
@@ -161,7 +192,7 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
                         InkWell(
                           onTap: () {
                             functions.showDoctorContactBottomSheet(
-                                context, '03231559163');
+                                context, widget.doctorNumber);
                           },
                           child: Container(
                             alignment: Alignment.center,
@@ -185,22 +216,46 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
                       width: 10,
                     ),
                     Expanded(
-                        child: ListView.builder(
-                            physics: BouncingScrollPhysics(),
-                            itemCount: 10,
-                            itemBuilder: (context, index) {
-                              return Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 10.0),
-                                child: Container(
-                                  child: const Row(
+                      child: StreamBuilder(
+                        stream: FirebaseFirestore.instance
+                            .collection('reviews')
+                            .where('docId', isEqualTo: widget.doctorUserId)
+                            .snapshots(),
+                        builder:
+                            (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          } else if (snapshot.hasError) {
+                            return Center(
+                              child: Text('Error: ${snapshot.error}'),
+                            );
+                          } else if (snapshot.data!.docs.isEmpty) {
+                            return const Center(
+                              child: Text('This doctor has no reviews.'),
+                            );
+                          } else {
+                            final reviewData = snapshot.data!.docs;
+
+                            return ListView.builder(
+                              physics: const BouncingScrollPhysics(),
+                              itemCount: snapshot.data!.docs.length,
+                              itemBuilder: (context, index) {
+                                final review = reviewData[index];
+
+                                return Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 10.0),
+                                  child: Row(
                                     children: [
                                       CircleAvatar(
-                                        backgroundImage: AssetImage(
-                                            'assets/feedback_image.png'),
+                                        backgroundImage:
+                                            NetworkImage(review['reviewImage']),
                                         radius: 30,
                                       ),
-                                      SizedBox(
+                                      const SizedBox(
                                         width: 10,
                                       ),
                                       SizedBox(
@@ -210,31 +265,37 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
                                               CrossAxisAlignment.stretch,
                                           children: [
                                             Text(
-                                              'Abdul Rehman',
-                                              style: TextStyle(fontSize: 15),
+                                              review['name'],
+                                              style:
+                                                  const TextStyle(fontSize: 15),
                                             ),
                                             Text(
-                                              'Dr. Kashif is a remarkable doctor',
-                                              style: TextStyle(fontSize: 13),
+                                              review['reviewText'],
+                                              style:
+                                                  const TextStyle(fontSize: 13),
                                             ),
-                                            Text(
-                                              '29-11-2023 ',
-                                              style: TextStyle(fontSize: 10),
-                                            )
                                           ],
                                         ),
                                       )
                                     ],
                                   ),
-                                ),
-                              );
-                            })),
+                                );
+                              },
+                            );
+                          }
+                        },
+                      ),
+                    ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         InkWell(
                           onTap: () {
-                            functions.nextScreen(context, FeedBackScreen());
+                            functions.nextScreen(
+                                context,
+                                FeedBackScreen(
+                                  doctorUserId: widget.doctorUserId,
+                                ));
                           },
                           child: Container(
                             alignment: Alignment.center,
@@ -249,14 +310,11 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
                         ),
                         InkWell(
                           onTap: () {
-                            // functions.showFeedBackSheet(context, height,
-                            //     () async {
-                            //   functions.popScreen(context);
-                            //   functions.showSnackbar(context,
-                            //       'your feedback has been recorded. Thankyou');
-                            // });
                             functions.nextScreen(
-                                context, const GiveFeedBackScreen());
+                                context,
+                                GiveFeedBackScreen(
+                                  docId: widget.doctorUserId,
+                                ));
                           },
                           child: Container(
                             alignment: Alignment.center,
@@ -270,12 +328,12 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
                           ),
                         )
                       ],
-                    )
+                    ),
                   ],
                 ),
               ),
             ),
-          )
+          ),
         ],
       ),
     );
